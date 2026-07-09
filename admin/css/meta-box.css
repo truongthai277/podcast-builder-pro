@@ -1,0 +1,174 @@
+/**
+ * Podcast Builder Pro — Meta Box Styles
+ */
+
+.pbp-meta-wrap {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --brand:      #22c55e;
+    --brand-bg:   rgba(34,197,94,.08);
+    --danger:     #ef4444;
+    --warning:    #f59e0b;
+    --border:     #e2e8f0;
+    --text:       #1e293b;
+    --muted:      #64748b;
+    --radius:     8px;
+}
+
+/* Status bar */
+.pbp-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    border: 1px solid var(--border);
+    background: #f8fafc;
+}
+
+.pbp-status-done       { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.25); color: #15803d; }
+.pbp-status-processing { background: rgba(6,182,212,.1);  border-color: rgba(6,182,212,.25); color: #164e63; }
+.pbp-status-queued     { background: rgba(245,158,11,.1); border-color: rgba(245,158,11,.25); color: #92400e; }
+.pbp-status-error      { background: rgba(239,68,68,.1);  border-color: rgba(239,68,68,.25); color: #991b1b; }
+
+.pbp-status-date, .pbp-status-duration {
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: auto;
+}
+
+/* Notice */
+.pbp-notice {
+    padding: 10px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.pbp-notice-error { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); color: #991b1b; }
+
+/* Audio row */
+.pbp-audio-row {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pbp-audio-row label { font-size: 13px; font-weight: 600; }
+.pbp-link-sm { font-size: 12px; color: #06b6d4; display: inline-block; margin-top: 4px; }
+
+/* Fields grid */
+.pbp-fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+@media (max-width: 780px) {
+    .pbp-fields-grid { grid-template-columns: 1fr; }
+}
+
+.pbp-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.pbp-field-full { grid-column: 1 / -1; }
+
+/* Action buttons */
+.pbp-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pbp-btn-generate {
+    background: linear-gradient(135deg, #22c55e, #16a34a) !important;
+    border-color: #16a34a !important;
+    color: #fff !important;
+    font-weight: 700 !important;
+    padding: 8px 18px !important;
+    height: auto !important;
+    transition: all .2s !important;
+}
+
+.pbp-btn-generate:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 16px rgba(34,197,94,.3) !important;
+}
+
+.pbp-btn-generate:disabled {
+    opacity: .65 !important;
+    transform: none !important;
+    cursor: not-allowed !important;
+}
+
+/* Progress */
+.pbp-progress { margin-bottom: 12px; }
+.pbp-progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.pbp-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #06b6d4, #22c55e);
+    background-size: 200% 100%;
+    border-radius: 100px;
+    animation: pbp-progress-anim 1.5s linear infinite;
+    width: 100%;
+}
+
+@keyframes pbp-progress-anim {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+.pbp-progress-msg {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 0;
+}
+
+/* Collapsible areas */
+.pbp-collapsible {
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+    background: #f8fafc;
+}
+
+.pbp-collapsible label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+/* Toggle button */
+.pbp-btn-toggle { font-size: 12px !important; }
+
+/* Exclude row */
+.pbp-exclude-row {
+    padding-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+}
