@@ -1,0 +1,1699 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Podcast Builder Pro — Biến Blog Post Thành Backlink Podcast Tự Động</title>
+  <meta name="description" content="Plugin WordPress chuyên nghiệp: tự động tạo podcast từ bài viết bằng AI, xuất RSS feed chuẩn iTunes, chèn backlink vào show notes và theo dõi 11+ podcast directory. Tiết kiệm triệu đồng backlink mỗi tháng.">
+  <meta property="og:title" content="Podcast Builder Pro — Podcast & Backlink Tự Động Cho WordPress">
+  <meta property="og:description" content="Từ bài viết WordPress → AI Script → TTS Audio → RSS Feed → Backlink trên 11+ nền tảng uy tín. Hoàn toàn tự động 24/7.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎙️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #080f1e;
+      color: #dde8f5;
+      line-height: 1.7;
+      font-size: clamp(15px, 2.2vw, 17px);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    /* ============================================================
+       DESIGN TOKENS
+       ============================================================ */
+    :root {
+      --green:        #10b981;
+      --green-deep:   #059669;
+      --green-dark:   #064e3b;
+      --green-light:  rgba(16, 185, 129, 0.12);
+      --green-glow:   rgba(16, 185, 129, 0.25);
+      --green-neon:   rgba(16, 185, 129, 0.55);
+      --violet:       #7c3aed;
+      --violet-light: rgba(124, 58, 237, 0.15);
+      --amber:        #f59e0b;
+      --orange:       #ea580c;
+      --orange-glow:  rgba(234, 88, 12, 0.28);
+      --cyan:         #06b6d4;
+      --text:         #f0f6ff;
+      --text-2:       #94a3b8;
+      --text-3:       #64748b;
+      --bg:           #080f1e;
+      --bg-2:         #0c1527;
+      --bg-3:         #101d35;
+      --card:         rgba(255,255,255,0.05);
+      --card-h:       rgba(255,255,255,0.085);
+      --border:       rgba(255,255,255,0.09);
+      --border-g:     rgba(16,185,129,0.35);
+      --r:            16px;
+      --r-sm:         10px;
+      --t:            0.3s cubic-bezier(0.4,0,0.2,1);
+      --shadow:       0 4px 32px rgba(0,0,0,0.4);
+      --shadow-lg:    0 12px 60px rgba(0,0,0,0.5);
+    }
+
+    /* Noise texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.018'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ============================================================
+       LAYOUT
+       ============================================================ */
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 90px 0; position: relative; }
+    @media (min-width: 768px) { section { padding: 120px 0; } }
+
+    /* ============================================================
+       TYPOGRAPHY
+       ============================================================ */
+    h1, h2, h3, h4 { line-height: 1.2; font-weight: 800; letter-spacing: -0.03em; color: var(--text); }
+    h1 { font-size: clamp(30px, 5.5vw, 58px); }
+    h2 { font-size: clamp(26px, 4.5vw, 46px); }
+    h3 { font-size: clamp(17px, 2.8vw, 21px); }
+
+    .label-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--green);
+      background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(16,185,129,0.04));
+      padding: 7px 18px; border-radius: 100px; margin-bottom: 20px;
+      border: 1px solid rgba(16,185,129,0.22);
+      box-shadow: 0 0 20px rgba(16,185,129,0.07);
+    }
+    .section-desc {
+      color: var(--text-2); max-width: 620px; margin: 12px auto 56px;
+      font-size: clamp(15px,2.5vw,18px);
+    }
+    .text-center { text-align: center; }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #fff 20%, var(--green) 55%, #34d399);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .glow-text {
+      background: linear-gradient(135deg, var(--green), #34d399, var(--cyan), var(--green));
+      background-size: 300% 300%;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      animation: gradient-shift 5s ease infinite;
+    }
+    @keyframes gradient-shift {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+
+    /* ============================================================
+       BUTTONS
+       ============================================================ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      font-weight: 700; font-size: 16px; padding: 14px 32px;
+      border-radius: 12px; border: none; cursor: pointer;
+      transition: all var(--t); font-family: inherit;
+      position: relative; overflow: hidden; white-space: nowrap;
+    }
+    .btn::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.14) 0%, transparent 50%, rgba(255,255,255,0.06) 100%);
+      opacity: 0; transition: opacity var(--t);
+    }
+    .btn:hover::after { opacity: 1; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange), #f97316, #ea580c);
+      color: #fff;
+      box-shadow: 0 4px 24px var(--orange-glow), 0 0 60px rgba(234,88,12,0.1), inset 0 1px 0 rgba(255,255,255,0.18);
+    }
+    .btn-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(234,88,12,0.4), 0 0 80px rgba(234,88,12,0.15);
+    }
+    .btn-green {
+      background: linear-gradient(135deg, var(--green-deep), var(--green-dark));
+      color: #fff;
+      box-shadow: 0 4px 24px var(--green-glow), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .btn-green:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(16,185,129,0.35);
+    }
+    .btn-ghost {
+      background: rgba(16,185,129,0.07);
+      color: var(--green);
+      border: 2px solid rgba(16,185,129,0.3);
+      backdrop-filter: blur(10px);
+    }
+    .btn-ghost:hover {
+      background: rgba(16,185,129,0.13);
+      border-color: var(--green);
+      box-shadow: 0 0 28px rgba(16,185,129,0.14);
+    }
+    .btn-lg { padding: 18px 44px; font-size: 17px; border-radius: 14px; }
+    .btn-xl { padding: 22px 52px; font-size: 18px; border-radius: 16px; }
+
+    /* ============================================================
+       DIVIDER
+       ============================================================ */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(16,185,129,0.22), rgba(6,182,212,0.12), rgba(16,185,129,0.22), transparent);
+    }
+
+    /* ============================================================
+       NAV
+       ============================================================ */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(8,15,30,0.7);
+      backdrop-filter: blur(24px) saturate(1.5);
+      -webkit-backdrop-filter: blur(24px) saturate(1.5);
+      border-bottom: 1px solid var(--border);
+      transition: all var(--t);
+    }
+    .nav.scrolled {
+      background: rgba(8,15,30,0.95);
+      box-shadow: 0 4px 40px rgba(0,0,0,0.5), 0 0 40px rgba(16,185,129,0.03);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 12px;
+      font-weight: 800; font-size: 17px; color: #fff;
+    }
+    .nav-logo-icon {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--green), var(--green-deep));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 24px rgba(16,185,129,0.3);
+      animation: logo-pulse 3s ease-in-out infinite;
+    }
+    @keyframes logo-pulse {
+      0%,100% { box-shadow: 0 0 24px rgba(16,185,129,0.3); }
+      50%      { box-shadow: 0 0 36px rgba(16,185,129,0.5), 0 0 60px rgba(16,185,129,0.12); }
+    }
+    .nav-links { display: none; gap: 28px; }
+    @media (min-width: 900px) { .nav-links { display: flex; } }
+    .nav-links a {
+      font-size: 14px; font-weight: 600; color: var(--text-2);
+      transition: color var(--t);
+    }
+    .nav-links a:hover { color: var(--green); }
+    .nav-cta { display: none; }
+    @media (min-width: 640px) { .nav-cta { display: inline-flex; } }
+
+    /* ============================================================
+       HERO
+       ============================================================ */
+    .hero {
+      padding: 140px 0 100px;
+      position: relative; overflow: hidden;
+      background: var(--bg);
+    }
+    @media (min-width: 768px) { .hero { padding: 170px 0 130px; } }
+
+    /* Hero BG */
+    .hero-bg {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .hero-bg::before {
+      content: '';
+      position: absolute; top: -40%; left: 50%;
+      transform: translateX(-50%);
+      width: 1100px; height: 1100px;
+      background: radial-gradient(circle,
+        rgba(16,185,129,0.14) 0%,
+        rgba(6,182,212,0.04) 35%,
+        rgba(124,58,237,0.03) 55%,
+        transparent 70%);
+      animation: hero-breathe 7s ease-in-out infinite;
+    }
+    .hero-bg::after {
+      content: '';
+      position: absolute; bottom: -20%; right: -10%;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(234,88,12,0.07) 0%, rgba(124,58,237,0.03) 40%, transparent 70%);
+    }
+    @keyframes hero-breathe {
+      0%,100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+      50%      { opacity: 1; transform: translateX(-50%) scale(1.1); }
+    }
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(16,185,129,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(16,185,129,0.04) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: radial-gradient(ellipse 70% 65% at 50% 40%, #000 25%, transparent 80%);
+      -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 40%, #000 25%, transparent 80%);
+    }
+
+    .hero-inner {
+      position: relative; z-index: 2;
+      display: grid; gap: 48px; align-items: center;
+    }
+    @media (min-width: 980px) {
+      .hero-inner { grid-template-columns: minmax(0,1fr) minmax(340px,0.85fr); gap: 60px; }
+    }
+    .hero-content { position: relative; z-index: 2; }
+    @media (max-width: 979px) { .hero-content { text-align: center; } .hero-media { order: 2; } }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(16,185,129,0.07);
+      border: 1px solid rgba(16,185,129,0.16);
+      padding: 9px 20px; border-radius: 100px;
+      font-size: 13.5px; font-weight: 500; color: var(--text-2);
+      margin-bottom: 30px;
+      backdrop-filter: blur(12px);
+    }
+    .badge-dot {
+      width: 8px; height: 8px;
+      background: var(--green); border-radius: 50%;
+      box-shadow: 0 0 12px rgba(16,185,129,0.7);
+      animation: dot-pulse 2s ease infinite;
+    }
+    @keyframes dot-pulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.6; transform: scale(1.5); }
+    }
+
+    .hero h1 { margin-bottom: 22px; }
+    .hero-sub {
+      font-size: clamp(16px,2.8vw,19px);
+      color: var(--text-2);
+      margin-bottom: 40px;
+      line-height: 1.85;
+    }
+    .hero-ctas {
+      display: flex; flex-direction: column; gap: 14px; align-items: center;
+      margin-bottom: 40px;
+    }
+    @media (min-width: 480px) { .hero-ctas { flex-direction: row; justify-content: center; } }
+    @media (min-width: 980px) { .hero-ctas { justify-content: flex-start; } }
+
+    .hero-trust {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px;
+      font-size: 13px; color: var(--text-3);
+    }
+    @media (min-width: 980px) { .hero-trust { justify-content: flex-start; } }
+    .hero-trust span { display: inline-flex; align-items: center; gap: 5px; }
+    .trust-check { color: var(--green); font-weight: 700; }
+
+    /* Hero media card */
+    .hero-media { position: relative; max-width: 520px; margin: 0 auto; }
+    .hero-card {
+      position: relative;
+      padding: 14px;
+      border-radius: 28px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+      border: 1px solid rgba(255,255,255,0.11);
+      box-shadow: 0 24px 100px rgba(0,0,0,0.5), 0 0 100px rgba(16,185,129,0.09);
+      backdrop-filter: blur(20px);
+      transform: perspective(900px) rotateY(-4deg) rotateX(2deg);
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+    .hero-card:hover {
+      transform: perspective(900px) rotateY(0) rotateX(0) translateY(-8px);
+      box-shadow: 0 32px 120px rgba(0,0,0,0.55), 0 0 130px rgba(16,185,129,0.15);
+    }
+    .hero-card-glow {
+      position: absolute; inset: -2px; border-radius: 30px;
+      background: radial-gradient(circle at 60% 40%, rgba(16,185,129,0.22), transparent 50%),
+                  radial-gradient(circle at 20% 80%, rgba(6,182,212,0.12), transparent 40%);
+      filter: blur(8px); pointer-events: none; opacity: 0.85;
+    }
+    .hero-card-inner {
+      background: linear-gradient(135deg, #0d1f3a, #0a1628);
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    /* Fake admin mockup */
+    .mockup-topbar {
+      background: #0c192e; border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .mockup-dots { display: flex; gap: 5px; }
+    .mockup-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .d-red { background: #ff5f57; }
+    .d-yel { background: #febc2e; }
+    .d-grn { background: #28c840; }
+    .mockup-url {
+      flex: 1; background: rgba(255,255,255,0.06); border-radius: 6px;
+      padding: 4px 12px; font-size: 11px; color: var(--text-3);
+      font-family: monospace;
+    }
+    .mockup-body { padding: 20px; }
+    .mockup-title {
+      font-size: 13px; font-weight: 700; color: var(--text);
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .mockup-status-row {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2);
+      border-radius: 8px; padding: 9px 12px; margin-bottom: 12px;
+    }
+    .m-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    .m-status-text { font-size: 12px; color: var(--green); font-weight: 600; }
+    .m-status-time { font-size: 11px; color: var(--text-3); margin-left: auto; }
+    .mockup-wave {
+      height: 48px; border-radius: 8px; overflow: hidden;
+      background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(6,182,212,0.05));
+      display: flex; align-items: center; padding: 0 12px; gap: 2px;
+      margin-bottom: 12px;
+    }
+    .wave-bar {
+      width: 3px; background: var(--green); border-radius: 2px;
+      animation: wave-anim var(--d, 0.8s) ease-in-out infinite alternate;
+    }
+    @keyframes wave-anim {
+      from { height: 30%; }
+      to   { height: var(--h, 80%); }
+    }
+    .mockup-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .m-tag {
+      font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 100px;
+      background: rgba(16,185,129,0.1); color: var(--green);
+      border: 1px solid rgba(16,185,129,0.2);
+    }
+    .m-tag.orange { background: rgba(234,88,12,0.1); color: #f97316; border-color: rgba(234,88,12,0.2); }
+    .m-tag.cyan   { background: rgba(6,182,212,0.1);  color: var(--cyan); border-color: rgba(6,182,212,0.2); }
+
+    .hero-card-caption {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 12px; color: var(--text-2); font-size: 12.5px;
+    }
+
+    /* ============================================================
+       FLOW STRIP
+       ============================================================ */
+    .flow-strip {
+      background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 28px 0;
+    }
+    .flow-inner {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      align-items: center; gap: 8px 6px;
+    }
+    .flow-step {
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(8px);
+      padding: 10px 20px; border-radius: 100px;
+      font-size: 14px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all var(--t);
+    }
+    .flow-step:hover {
+      background: rgba(16,185,129,0.1);
+      border-color: rgba(16,185,129,0.25);
+      transform: translateY(-2px);
+    }
+    .flow-arrow { font-size: 18px; color: rgba(255,255,255,0.25); }
+    @media (max-width: 500px) { .flow-arrow { display: none; } }
+
+    /* ============================================================
+       PAIN POINTS
+       ============================================================ */
+    .pain { background: var(--bg-3); position: relative; overflow: hidden; }
+    .pain::before {
+      content: ''; position: absolute; top: -80px; right: -80px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(239,68,68,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .pain-grid { display: grid; gap: 18px; }
+    @media (min-width: 680px) { .pain-grid { grid-template-columns: 1fr 1fr; } }
+    .pain-card {
+      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(10px);
+      border-radius: var(--r); padding: 30px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-left: 3px solid rgba(239,68,68,0.7);
+      transition: all var(--t); position: relative; overflow: hidden;
+    }
+    .pain-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(239,68,68,0.04) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .pain-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(239,68,68,0.3);
+      box-shadow: 0 12px 40px rgba(239,68,68,0.07);
+    }
+    .pain-icon { font-size: 34px; margin-bottom: 12px; }
+    .pain-card h3 { font-size: 16.5px; margin-bottom: 8px; font-weight: 700; }
+    .pain-card p  { font-size: 14.5px; color: var(--text-2); line-height: 1.7; }
+
+    /* ============================================================
+       SOLUTION BOX
+       ============================================================ */
+    .solution { background: var(--bg-2); position: relative; overflow: hidden; }
+    .solution::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 700px; height: 600px;
+      background: radial-gradient(ellipse, rgba(16,185,129,0.07) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .solution-box {
+      background: linear-gradient(145deg, rgba(6,78,52,0.7), rgba(4,47,31,0.8), rgba(6,20,40,0.9));
+      border-radius: 24px; padding: 52px 32px; text-align: center;
+      position: relative; overflow: hidden;
+      border: 1px solid rgba(16,185,129,0.2);
+      box-shadow: 0 0 80px rgba(16,185,129,0.09), 0 20px 60px rgba(0,0,0,0.35);
+      backdrop-filter: blur(20px);
+    }
+    @media (min-width: 768px) { .solution-box { padding: 80px 60px; border-radius: 28px; } }
+    .solution-box::before {
+      content: ''; position: absolute; top: -50%; right: -15%;
+      width: 460px; height: 460px;
+      background: radial-gradient(circle, rgba(255,255,255,0.055) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .solution-glow {
+      position: absolute; inset: -1px; border-radius: 24px; padding: 1px;
+      background: conic-gradient(from 0deg, var(--green-neon), transparent 35%, transparent 65%, rgba(6,182,212,0.25));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      pointer-events: none; animation: spin-glow 8s linear infinite;
+    }
+    @media (min-width: 768px) { .solution-glow { border-radius: 28px; } }
+    @keyframes spin-glow { to { filter: hue-rotate(15deg); } }
+    .solution-box h2 { color: #fff; margin-bottom: 18px; position: relative; z-index: 1; }
+    .solution-box p  {
+      color: rgba(255,255,255,0.82); max-width: 720px; margin: 0 auto 36px;
+      font-size: clamp(15px,2.5vw,18px); line-height: 1.85; position: relative; z-index: 1;
+    }
+    .solution-flow {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
+      position: relative; z-index: 1;
+    }
+    .sol-step {
+      background: rgba(255,255,255,0.1); backdrop-filter: blur(8px);
+      padding: 11px 22px; border-radius: 100px;
+      font-size: 14px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: all var(--t);
+    }
+    .sol-step:hover { background: rgba(255,255,255,0.18); transform: translateY(-2px); }
+    .sol-arrow { display: flex; align-items: center; color: rgba(255,255,255,0.3); font-size: 20px; }
+    @media (max-width: 480px) { .sol-arrow { display: none; } }
+
+    /* ============================================================
+       FEATURES
+       ============================================================ */
+    .features { background: var(--bg-3); position: relative; overflow: hidden; }
+    .feat-grid { display: grid; gap: 20px; }
+    @media (min-width: 680px) { .feat-grid { grid-template-columns: 1fr 1fr; } }
+    @media (min-width: 1024px) { .feat-grid { grid-template-columns: 1fr 1fr 1fr; } }
+    .feat-card {
+      background: linear-gradient(160deg, rgba(255,255,255,0.065), rgba(255,255,255,0.022));
+      backdrop-filter: blur(10px);
+      border-radius: var(--r); padding: 34px 26px;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+      position: relative; overflow: hidden;
+    }
+    .feat-card::before {
+      content: ''; position: absolute; inset: -1px; border-radius: var(--r);
+      padding: 1px;
+      background: linear-gradient(135deg, transparent, transparent);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude;
+      transition: background 0.4s ease; pointer-events: none;
+    }
+    .feat-card:hover {
+      transform: translateY(-8px);
+      background: linear-gradient(160deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      box-shadow: 0 16px 50px rgba(0,0,0,0.32), 0 0 40px rgba(16,185,129,0.06);
+    }
+    .feat-card:hover::before {
+      background: linear-gradient(135deg, rgba(16,185,129,0.45), transparent 50%, rgba(6,182,212,0.18));
+    }
+    .feat-icon {
+      width: 58px; height: 58px;
+      background: linear-gradient(135deg, rgba(16,185,129,0.16), rgba(16,185,129,0.04));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px; margin-bottom: 18px;
+      border: 1px solid rgba(16,185,129,0.14);
+      box-shadow: 0 0 18px rgba(16,185,129,0.06);
+      transition: all var(--t);
+    }
+    .feat-card:hover .feat-icon {
+      box-shadow: 0 0 28px rgba(16,185,129,0.16);
+      transform: scale(1.06);
+    }
+    .feat-card.star {
+      border-color: rgba(16,185,129,0.22);
+      background: linear-gradient(160deg, rgba(16,185,129,0.09), rgba(16,185,129,0.03), rgba(255,255,255,0.04));
+    }
+    .feat-card.star .feat-icon { box-shadow: 0 0 28px rgba(16,185,129,0.12); }
+    .feat-star-badge {
+      position: absolute; top: 16px; right: 16px;
+      font-size: 11px; font-weight: 700; color: var(--green);
+      background: rgba(16,185,129,0.1); padding: 4px 12px; border-radius: 100px;
+      border: 1px solid rgba(16,185,129,0.22);
+    }
+    .feat-card h3 { font-size: 17.5px; margin-bottom: 9px; }
+    .feat-card p  { font-size: 14.5px; color: var(--text-2); line-height: 1.7; }
+
+    /* Platforms */
+    .platforms-bar {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 28px;
+      padding: 28px 0 0;
+      border-top: 1px solid rgba(255,255,255,0.055);
+      margin-top: 52px;
+    }
+    .plat-item {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13.5px; color: var(--text-3); font-weight: 500;
+      transition: all var(--t);
+    }
+    .plat-item:hover { color: var(--text-2); transform: translateY(-2px); }
+    .plat-icon { font-size: 20px; }
+
+    /* Note box */
+    .note-box {
+      background: linear-gradient(135deg, rgba(16,185,129,0.07), rgba(16,185,129,0.02));
+      border: 1px solid rgba(16,185,129,0.16);
+      border-radius: var(--r); padding: 22px 26px; margin-top: 36px;
+      max-width: 760px; margin-left: auto; margin-right: auto;
+      backdrop-filter: blur(8px);
+    }
+    .note-box p { font-size: 14px; color: var(--text-2); margin: 0; line-height: 1.7; }
+    .note-green { color: var(--green); font-weight: 700; }
+
+    /* ============================================================
+       BENEFITS
+       ============================================================ */
+    .benefits { background: var(--bg-2); position: relative; overflow: hidden; }
+    .benefits::before {
+      content: ''; position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 700px; height: 500px;
+      background: radial-gradient(ellipse, rgba(16,185,129,0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .benefits-list { display: grid; gap: 14px; max-width: 800px; margin: 0 auto; }
+    .benefit {
+      display: flex; gap: 18px; align-items: flex-start;
+      background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+      backdrop-filter: blur(8px); padding: 26px;
+      border-radius: var(--r); border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+      position: relative; overflow: hidden;
+    }
+    .benefit::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(to bottom, var(--green), transparent);
+      opacity: 0; transition: opacity var(--t);
+    }
+    .benefit:hover {
+      transform: translateX(8px);
+      background: linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      border-color: var(--border-g);
+      box-shadow: -4px 0 28px rgba(16,185,129,0.08), 0 8px 28px rgba(0,0,0,0.2);
+    }
+    .benefit:hover::before { opacity: 1; }
+    .benefit-icon {
+      flex-shrink: 0; width: 54px; height: 54px;
+      background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.04));
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+      border: 1px solid rgba(16,185,129,0.14);
+      transition: all var(--t);
+    }
+    .benefit:hover .benefit-icon { box-shadow: 0 0 28px rgba(16,185,129,0.15); transform: scale(1.06); }
+    .benefit h3 { font-size: 16.5px; margin-bottom: 5px; }
+    .benefit p  { font-size: 14.5px; color: var(--text-2); }
+    .benefits-cta { text-align: center; margin-top: 48px; }
+
+    /* ============================================================
+       HOW IT WORKS
+       ============================================================ */
+    .how { background: var(--bg-3); position: relative; overflow: hidden; }
+    .how::before {
+      content: ''; position: absolute; top: 50%; left: -200px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(16,185,129,0.04) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .steps-wrap { display: grid; gap: 26px; max-width: 800px; margin: 0 auto; }
+    .step {
+      display: flex; gap: 22px; align-items: flex-start;
+      position: relative;
+    }
+    .step:not(:last-child)::before {
+      content: ''; position: absolute; left: 25px; top: 58px;
+      width: 2px; height: calc(100% - 14px);
+      background: linear-gradient(to bottom, rgba(16,185,129,0.35), rgba(16,185,129,0.04));
+    }
+    .step-num {
+      flex-shrink: 0; width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--green), var(--green-deep));
+      color: #fff; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 20px; position: relative; z-index: 1;
+      box-shadow: 0 0 28px rgba(16,185,129,0.28);
+      transition: all var(--t);
+    }
+    .step:hover .step-num {
+      box-shadow: 0 0 40px rgba(16,185,129,0.45);
+      transform: scale(1.08);
+    }
+    .step-body {
+      flex: 1;
+      background: linear-gradient(145deg, rgba(255,255,255,0.065), rgba(255,255,255,0.022));
+      backdrop-filter: blur(8px); border-radius: var(--r);
+      padding: 26px; border: 1px solid rgba(255,255,255,0.06);
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1); position: relative; overflow: hidden;
+    }
+    .step:hover .step-body {
+      border-color: var(--border-g);
+      background: linear-gradient(145deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      box-shadow: 0 10px 40px rgba(0,0,0,0.28);
+    }
+    .step-tag {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--green); margin-bottom: 5px;
+    }
+    .step-body h3 { font-size: 17.5px; margin-bottom: 9px; }
+    .step-body p  { font-size: 14.5px; color: var(--text-2); line-height: 1.7; }
+    .step-time {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12.5px; color: var(--green); font-weight: 600; margin-top: 10px;
+      background: rgba(16,185,129,0.1); padding: 4px 14px; border-radius: 100px;
+      border: 1px solid rgba(16,185,129,0.15);
+    }
+    .how-cta { text-align: center; margin-top: 56px; }
+
+    /* ============================================================
+       PRICING
+       ============================================================ */
+    .pricing { background: var(--bg-2); position: relative; overflow: hidden; }
+    .pricing::before {
+      content: ''; position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      width: 700px; height: 600px;
+      background: radial-gradient(ellipse, rgba(16,185,129,0.06) 0%, rgba(124,58,237,0.02) 40%, transparent 70%);
+      pointer-events: none;
+    }
+    .pricing-grid {
+      display: grid; gap: 24px; align-items: stretch;
+      position: relative; z-index: 1;
+    }
+    @media (min-width: 860px) { .pricing-grid { grid-template-columns: 1fr 1.06fr; } }
+
+    .plan {
+      background: linear-gradient(160deg, rgba(255,255,255,0.075), rgba(255,255,255,0.028));
+      border-radius: 24px; padding: 36px 28px;
+      border: 1px solid rgba(255,255,255,0.08);
+      position: relative; overflow: hidden;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 8px 60px rgba(0,0,0,0.38);
+      display: flex; flex-direction: column;
+    }
+    @media (min-width: 768px) { .plan { padding: 44px 36px; } }
+    .plan::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--green), var(--cyan), var(--green));
+    }
+    .plan.featured {
+      border-color: rgba(234,88,12,0.35);
+      background: linear-gradient(160deg, rgba(234,88,12,0.09), rgba(16,185,129,0.07), rgba(255,255,255,0.035));
+      transform: translateY(-5px);
+      box-shadow: 0 16px 70px rgba(0,0,0,0.5), 0 0 90px rgba(234,88,12,0.09);
+    }
+    .plan.featured::before {
+      background: linear-gradient(90deg, var(--orange), var(--green), var(--cyan), var(--orange));
+      background-size: 300% 100%;
+      animation: gradient-bar 4s linear infinite;
+    }
+    @keyframes gradient-bar {
+      0%   { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    .plan-tag {
+      align-self: flex-start;
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+      padding: 6px 14px; border-radius: 100px; margin-bottom: 16px;
+      position: relative; z-index: 1;
+    }
+    .plan-tag.basic {
+      background: rgba(16,185,129,0.1); color: var(--green);
+      border: 1px solid rgba(16,185,129,0.22);
+    }
+    .plan-tag.hot {
+      background: linear-gradient(135deg, var(--orange), #f97316);
+      color: #fff;
+      box-shadow: 0 4px 18px var(--orange-glow);
+    }
+    .plan h3 { font-size: clamp(20px,3vw,26px); margin-bottom: 8px; position: relative; z-index: 1; }
+    .plan-desc { color: var(--text-2); font-size: 14.5px; margin-bottom: 16px; position: relative; z-index: 1; }
+    .plan-price {
+      display: flex; align-items: flex-end; gap: 7px;
+      margin: 4px 0 18px; position: relative; z-index: 1;
+    }
+    .plan-price strong {
+      font-size: clamp(30px,5vw,42px); line-height: 1;
+      color: #fff; letter-spacing: -0.04em;
+    }
+    .plan-price span { color: var(--text-3); font-size: 13.5px; padding-bottom: 5px; }
+    .plan-highlight {
+      background: linear-gradient(135deg, rgba(234,88,12,0.1), rgba(16,185,129,0.07));
+      border: 1px solid rgba(234,88,12,0.2);
+      border-radius: 12px; padding: 11px 14px; margin-bottom: 20px;
+      font-size: 13.5px; color: var(--text-2); position: relative; z-index: 1;
+    }
+    .plan-feats { margin-bottom: 26px; position: relative; z-index: 1; }
+    .plan-feats li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 0; font-size: 14px; color: var(--text-2);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .plan-feats li:last-child { border-bottom: none; }
+    .check-circle {
+      flex-shrink: 0; width: 22px; height: 22px;
+      background: rgba(16,185,129,0.14); color: var(--green);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; margin-top: 1px;
+      border: 1px solid rgba(16,185,129,0.2);
+    }
+    .plan-btn { margin-top: auto; position: relative; z-index: 1; }
+    .plan-sub {
+      text-align: center; font-size: 12.5px; color: var(--text-3);
+      margin-top: 12px; position: relative; z-index: 1;
+    }
+
+    .pricing-note {
+      max-width: 820px; margin: 28px auto 0;
+      background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.15);
+      border-radius: 16px; padding: 16px 22px;
+      font-size: 13.5px; color: var(--text-2); text-align: center;
+      position: relative; z-index: 1;
+    }
+
+    .compat-row {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+      margin-top: 22px; position: relative; z-index: 1;
+    }
+    .compat-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12.5px; color: var(--text-2);
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      padding: 6px 14px; border-radius: 100px; backdrop-filter: blur(6px);
+      transition: all var(--t);
+    }
+    .compat-chip:hover {
+      border-color: rgba(16,185,129,0.2);
+      background: rgba(16,185,129,0.06);
+      transform: translateY(-2px);
+    }
+
+    /* ============================================================
+       FAQ
+       ============================================================ */
+    .faq { background: var(--bg-3); position: relative; overflow: hidden; }
+    .faq::before {
+      content: ''; position: absolute; bottom: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 400px;
+      background: radial-gradient(ellipse, rgba(16,185,129,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .faq-wrap { max-width: 760px; margin: 0 auto; border-radius: 18px; overflow: hidden; }
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.07); transition: all var(--t); }
+    .faq-item:hover { background: rgba(255,255,255,0.025); }
+    .faq-q {
+      width: 100%; display: flex; justify-content: space-between;
+      align-items: center; gap: 14px; padding: 22px 28px;
+      background: none; border: none; cursor: pointer;
+      font-size: 15.5px; font-weight: 600; color: var(--text);
+      text-align: left; line-height: 1.5; font-family: inherit;
+      transition: color var(--t);
+    }
+    .faq-q:hover { color: var(--green); }
+    .faq-ico {
+      flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(16,185,129,0.1); color: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700;
+      border: 1px solid rgba(16,185,129,0.12);
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    .faq-item.open .faq-ico {
+      transform: rotate(45deg);
+      background: rgba(16,185,129,0.2);
+      box-shadow: 0 0 18px rgba(16,185,129,0.2);
+    }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; }
+    .faq-item.open .faq-a { max-height: 300px; }
+    .faq-a-inner {
+      padding: 0 28px 24px;
+      font-size: 14.5px; color: var(--text-2); line-height: 1.85;
+    }
+    @media (max-width: 640px) {
+      .faq-q { padding: 18px 16px; font-size: 14.5px; }
+      .faq-a-inner { padding: 0 16px 20px; }
+    }
+
+    /* ============================================================
+       FINAL CTA
+       ============================================================ */
+    .final-cta {
+      background: linear-gradient(160deg, #0b2a3f, #063b22, #091e36);
+      background-size: 200% 200%;
+      animation: final-bg 9s ease-in-out infinite;
+      position: relative; overflow: hidden; text-align: center;
+    }
+    @keyframes final-bg {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    .final-cta::before {
+      content: ''; position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 1000px; height: 600px;
+      background: radial-gradient(ellipse, rgba(16,185,129,0.16) 0%, rgba(6,182,212,0.04) 40%, transparent 70%);
+      pointer-events: none;
+    }
+    .final-cta .container { position: relative; z-index: 1; }
+    .final-cta h2 { color: #fff; margin-bottom: 18px; }
+    .final-cta p {
+      color: rgba(255,255,255,0.68); font-size: clamp(15px,2.5vw,17.5px);
+      margin-bottom: 40px; max-width: 560px; margin-left: auto; margin-right: auto;
+    }
+
+    /* ============================================================
+       FOOTER
+       ============================================================ */
+    footer {
+      background: #05090f; border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 26px 0; text-align: center;
+      font-size: 13.5px; color: var(--text-3);
+    }
+    footer a { color: var(--text-2); transition: color var(--t); }
+    footer a:hover { color: var(--green); }
+
+    /* ============================================================
+       STICKY CTA (Mobile)
+       ============================================================ */
+    .sticky-bar {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(8,15,30,0.96); backdrop-filter: blur(20px);
+      padding: 12px 16px;
+      box-shadow: 0 -4px 30px rgba(0,0,0,0.6);
+      border-top: 1px solid rgba(16,185,129,0.1);
+    }
+    .sticky-bar .btn { width: 100%; font-size: 15px; padding: 13px; }
+    .sticky-bar.show { display: block; }
+    @media (min-width: 768px) { .sticky-bar { display: none !important; } }
+
+    /* ============================================================
+       REVEAL ANIMATIONS
+       ============================================================ */
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity 0.85s cubic-bezier(0.16,1,0.3,1), transform 0.85s cubic-bezier(0.16,1,0.3,1);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .stagger .reveal:nth-child(1)  { transition-delay: 0s; }
+    .stagger .reveal:nth-child(2)  { transition-delay: 0.07s; }
+    .stagger .reveal:nth-child(3)  { transition-delay: 0.14s; }
+    .stagger .reveal:nth-child(4)  { transition-delay: 0.21s; }
+    .stagger .reveal:nth-child(5)  { transition-delay: 0.28s; }
+    .stagger .reveal:nth-child(6)  { transition-delay: 0.35s; }
+
+    /* ============================================================
+       PARTICLES
+       ============================================================ */
+    .particle {
+      position: absolute; border-radius: 50%; pointer-events: none;
+      animation: float-up linear infinite;
+    }
+    @keyframes float-up {
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+      15%  { opacity: 1; }
+      85%  { opacity: 0.5; }
+      100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVIGATION
+     ============================================================ -->
+<nav class="nav" id="nav" role="navigation" aria-label="Menu chính">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" aria-label="Podcast Builder Pro - Về trang chủ">
+        <div class="nav-logo-icon">🎙️</div>
+        <span>Podcast Builder Pro</span>
+      </a>
+      <div class="nav-links" role="list">
+        <a href="#features" role="listitem">Tính năng</a>
+        <a href="#how-it-works" role="listitem">Cách hoạt động</a>
+        <a href="#pricing" role="listitem">Bảng giá</a>
+        <a href="#faq" role="listitem">FAQ</a>
+      </div>
+      <a href="#pricing" class="btn btn-green nav-cta" aria-label="Xem gói mua">🔥 Xem Gói Mua</a>
+    </div>
+  </div>
+</nav>
+
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero" id="hero">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="container">
+    <div class="hero-inner">
+
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          WordPress Plugin — Dành cho SEOer & Chủ website
+        </div>
+        <h1>
+          Biến Blog Post Thành
+          <span class="glow-text">Podcast Feed</span>
+          &amp; Backlink — Tự Động 24/7
+        </h1>
+        <p class="hero-sub">
+          Plugin WordPress tích hợp AI viết kịch bản, TTS tạo audio, RSS feed chuẩn iTunes và show notes có backlink. Theo dõi tiến độ submit lên 11+ nền tảng uy tín ngay trong WordPress admin — không cần kỹ thuật, không cần micro.
+        </p>
+        <div class="hero-ctas">
+          <a href="#pricing" class="btn btn-primary btn-lg" id="hero-cta-main">🚀 Bắt Đầu Ngay</a>
+          <a href="#how-it-works" class="btn btn-ghost btn-lg">Xem Cách Hoạt Động</a>
+        </div>
+        <div class="hero-trust">
+          <span><span class="trust-check">✓</span> WordPress 6.0+</span>
+          <span><span class="trust-check">✓</span> PHP 7.4+</span>
+          <span><span class="trust-check">✓</span> Hỗ trợ tiếng Việt</span>
+          <span><span class="trust-check">✓</span> RankMath tương thích</span>
+        </div>
+      </div>
+
+      <div class="hero-media reveal" aria-label="Minh họa giao diện Podcast Builder Pro">
+        <div class="hero-card">
+          <div class="hero-card-glow"></div>
+          <div class="hero-card-inner">
+            <!-- Mockup admin UI -->
+            <div class="mockup-topbar">
+              <div class="mockup-dots">
+                <div class="mockup-dot d-red"></div>
+                <div class="mockup-dot d-yel"></div>
+                <div class="mockup-dot d-grn"></div>
+              </div>
+              <div class="mockup-url">yoursite.com/wp-admin/ — 🎙️ Podcast Builder Pro</div>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-title">🎙️ Podcast Builder Pro <span style="font-size:10px;background:rgba(16,185,129,.15);color:var(--green);padding:2px 8px;border-radius:100px;font-weight:700;">v1.0</span></div>
+
+              <div class="mockup-status-row">
+                <div class="m-status-dot"></div>
+                <span class="m-status-text">✅ Podcast đã được tạo thành công!</span>
+                <span class="m-status-time">vừa xong</span>
+              </div>
+
+              <!-- Waveform -->
+              <div class="mockup-wave" aria-label="Waveform audio podcast">
+                <div class="wave-bar" style="--d:0.6s;--h:60%"></div>
+                <div class="wave-bar" style="--d:0.8s;--h:90%"></div>
+                <div class="wave-bar" style="--d:0.5s;--h:45%"></div>
+                <div class="wave-bar" style="--d:0.9s;--h:80%"></div>
+                <div class="wave-bar" style="--d:0.7s;--h:70%"></div>
+                <div class="wave-bar" style="--d:0.6s;--h:95%"></div>
+                <div class="wave-bar" style="--d:0.8s;--h:55%"></div>
+                <div class="wave-bar" style="--d:0.5s;--h:85%"></div>
+                <div class="wave-bar" style="--d:0.7s;--h:65%"></div>
+                <div class="wave-bar" style="--d:0.9s;--h:40%"></div>
+                <div class="wave-bar" style="--d:0.6s;--h:78%"></div>
+                <div class="wave-bar" style="--d:0.8s;--h:92%"></div>
+                <div class="wave-bar" style="--d:0.5s;--h:50%"></div>
+                <div class="wave-bar" style="--d:0.7s;--h:88%"></div>
+                <div class="wave-bar" style="--d:0.6s;--h:72%"></div>
+                <div class="wave-bar" style="--d:0.9s;--h:60%"></div>
+                <div class="wave-bar" style="--d:0.5s;--h:95%"></div>
+                <div class="wave-bar" style="--d:0.8s;--h:45%"></div>
+                <div class="wave-bar" style="--d:0.7s;--h:80%"></div>
+                <div class="wave-bar" style="--d:0.6s;--h:65%"></div>
+                <div class="wave-bar" style="--d:0.9s;--h:90%"></div>
+                <div class="wave-bar" style="--d:0.5s;--h:55%"></div>
+                <div class="wave-bar" style="--d:0.7s;--h:75%"></div>
+                <div class="wave-bar" style="--d:0.8s;--h:42%"></div>
+              </div>
+
+              <div class="mockup-tags">
+                <span class="m-tag">🤖 AI Script</span>
+                <span class="m-tag orange">🎙️ TTS Audio</span>
+                <span class="m-tag cyan">📡 RSS Feed</span>
+                <span class="m-tag">🔗 Backlink</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-card-caption">
+          <span>🎙️</span>
+          <span><strong style="color:var(--green)">Podcast Builder Pro</strong> — từ bài viết đến podcast feed & backlink.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FLOW STRIP
+     ============================================================ -->
+<div class="flow-strip">
+  <div class="container">
+    <div class="flow-inner">
+      <span class="flow-step">📝 Blog Post</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">🤖 AI Script</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">🎙️ TTS Audio</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">📡 RSS Feed</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">📋 Directory</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">🔗 Backlink</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ============================================================
+     PAIN POINTS
+     ============================================================ -->
+<section class="pain" id="pain-points">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="label-pill">😤 Vấn đề</span>
+      <h2>Bạn đang gặp những rào cản này?</h2>
+      <p class="section-desc">Phần lớn SEOer và chủ website đều đối mặt với những thách thức này mỗi ngày.</p>
+    </div>
+    <div class="pain-grid stagger">
+      <div class="pain-card reveal">
+        <div class="pain-icon">💸</div>
+        <h3>Backlink ngày càng đắt và rủi ro</h3>
+        <p>Chi hàng triệu đồng mỗi tháng mua backlink nhưng chất lượng mờ ám, lúc nào cũng lo Google cập nhật thuật toán và bị phạt.</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pain-icon">🐌</div>
+        <h3>Site mới index chậm — Google "bỏ quên"</h3>
+        <p>Viết nội dung chất lượng nhưng không được index, hoặc index rồi vẫn trượt thứ hạng vì thiếu tín hiệu từ bên ngoài đủ mạnh.</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pain-icon">🎰</div>
+        <h3>Thuê SEO agency — hứa nhiều, kết quả mơ hồ</h3>
+        <p>Trả phí agency nhưng không thể kiểm soát chất lượng link, không biết link đặt đâu, toàn bộ phụ thuộc vào người khác.</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pain-icon">⏰</div>
+        <h3>Outreach thủ công tốn quá nhiều thời gian</h3>
+        <p>Hiểu backlink quan trọng nhưng liên hệ từng site, viết guest post, theo dõi kết quả — tốn cả tuần mà chẳng có mấy link.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============================================================
+     SOLUTION
+     ============================================================ -->
+<section class="solution" id="solution">
+  <div class="container">
+    <div class="solution-box reveal">
+      <div class="solution-glow"></div>
+      <h2>Giải pháp: Tự tạo backlink từ podcast — bền vững & white-hat</h2>
+      <p>
+        <strong>Podcast Builder Pro</strong> biến mỗi bài viết WordPress thành một tập podcast chuyên nghiệp — với kịch bản AI tự nhiên, giọng đọc TTS, show notes chứa backlink tùy chỉnh, và RSS feed chuẩn iTunes sẵn sàng submit lên 11+ nền tảng có DA cao.
+      </p>
+      <div class="solution-flow">
+        <span class="sol-step">📝 Bài viết</span>
+        <span class="sol-arrow">→</span>
+        <span class="sol-step">🤖 AI Script</span>
+        <span class="sol-arrow">→</span>
+        <span class="sol-step">🎙️ Audio TTS</span>
+        <span class="sol-arrow">→</span>
+        <span class="sol-step">📡 RSS Feed</span>
+        <span class="sol-arrow">→</span>
+        <span class="sol-step">🔗 Backlink</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============================================================
+     FEATURES
+     ============================================================ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="label-pill">⚡ Tính năng</span>
+      <h2>Tất cả trong một plugin</h2>
+      <p class="section-desc">Gom toàn bộ quy trình tạo script, audio, feed, show notes backlink và directory tracker vào một giao diện WordPress duy nhất.</p>
+    </div>
+    <div class="feat-grid stagger">
+      <div class="feat-card reveal">
+        <div class="feat-icon">🤖</div>
+        <h3>AI Viết Script Podcast</h3>
+        <p>Google Gemini, OpenAI GPT hoặc OpenRouter tự động chuyển bài viết thành kịch bản hội thoại 2 giọng tự nhiên — nghe như 2 người đang trò chuyện thật sự.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🎙️</div>
+        <h3>Text-to-Speech Đa Provider</h3>
+        <p>Hỗ trợ OpenAI TTS, Google Cloud TTS, ElevenLabs, Fish Audio, <strong style="color:var(--green)">FPT.AI (tiếng Việt tốt nhất)</strong>, YEScale. Hoặc upload file / link audio tự thu âm.</p>
+      </div>
+      <div class="feat-card star reveal">
+        <div class="feat-star-badge">⭐ Nổi bật</div>
+        <div class="feat-icon">📡</div>
+        <h3>RSS Feed Chuẩn iTunes</h3>
+        <p>Tự động sinh RSS feed podcast chuẩn Apple Podcasts — đầy đủ namespace iTunes, enclosure, duration. Submit 1 lần, tập mới tự sync mãi mãi.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">🔗</div>
+        <h3>Backlink Tự Động Trong Show Notes</h3>
+        <p>Show notes tự chèn backlink với URL đích và anchor text tùy chỉnh cho từng bài — trỏ về bài viết, landing page hoặc homepage theo chiến lược SEO.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">📋</div>
+        <h3>Directory Tracker 11+ Nền Tảng</h3>
+        <p>Danh sách sẵn 11 directory có DA cao kèm link đăng ký. Ghi trạng thái submit, profile URL, ghi chú và theo dõi backlink health ngay trong WordPress.</p>
+      </div>
+      <div class="feat-card reveal">
+        <div class="feat-icon">⚡</div>
+        <h3>Auto-Generate Hàng Loạt</h3>
+        <p>Bật Auto Queue — plugin tự tìm bài viết đủ điều kiện, đưa vào hàng chờ, tạo podcast theo lịch (hourly/daily/weekly). Các platform tự đồng bộ tập mới từ feed.</p>
+      </div>
+    </div>
+
+    <!-- Platforms bar -->
+    <div class="platforms-bar reveal">
+      <div class="plat-item"><span class="plat-icon">🍎</span> Apple Podcasts</div>
+      <div class="plat-item"><span class="plat-icon">🟢</span> Spotify</div>
+      <div class="plat-item"><span class="plat-icon">🔍</span> Google Podcasts</div>
+      <div class="plat-item"><span class="plat-icon">🟠</span> Amazon Music</div>
+      <div class="plat-item"><span class="plat-icon">📻</span> TuneIn</div>
+      <div class="plat-item"><span class="plat-icon">🎧</span> iHeartRadio</div>
+      <div class="plat-item"><span class="plat-icon">🔷</span> Pocket Casts</div>
+      <div class="plat-item"><span class="plat-icon">🔎</span> Podcast Index</div>
+    </div>
+
+    <div class="note-box reveal">
+      <p>
+        <span class="note-green">💡 Lưu ý:</span>&nbsp;
+        Plugin tạo đầy đủ nguyên liệu podcast gồm audio, show notes và RSS feed. Bạn chỉ cần copy link RSS và đăng ký lên các nền tảng <strong>1 lần duy nhất</strong> cho mỗi website. Sau đó, mỗi tập mới sẽ tự động xuất hiện trên tất cả platform đã đăng ký.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============================================================
+     BENEFITS
+     ============================================================ -->
+<section class="benefits" id="benefits">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="label-pill">🎯 Lợi ích</span>
+      <h2>Tại sao SEOer chọn Podcast Builder Pro?</h2>
+      <p class="section-desc">Không chỉ là plugin — đây là chiến lược backlink bền vững mà đối thủ chưa khai thác.</p>
+    </div>
+    <div class="benefits-list stagger">
+      <div class="benefit reveal">
+        <div class="benefit-icon">💰</div>
+        <div>
+          <h3>Tiết kiệm hàng triệu đồng mỗi tháng</h3>
+          <p>Không cần mua backlink từ dịch vụ bên ngoài. Tự tạo nguồn link bền vững từ nền tảng uy tín DA 60-100 — đầu tư một lần, thu lợi mãi mãi.</p>
+        </div>
+      </div>
+      <div class="benefit reveal">
+        <div class="benefit-icon">📈</div>
+        <div>
+          <h3>Index nhanh hơn — ổn định hơn</h3>
+          <p>Các nền tảng podcast liên tục crawl RSS feed. Site mới được Google phát hiện nhanh hơn, site cũ duy trì index ổn định và nhận thêm tín hiệu authority.</p>
+        </div>
+      </div>
+      <div class="benefit reveal">
+        <div class="benefit-icon">🛡️</div>
+        <div>
+          <h3>Chiến lược phân phối nội dung 100% white-hat</h3>
+          <p>Podcast là kênh phân phối hợp lệ, được Google khuyến khích. Show notes backlink từ Apple Podcasts (DA 100), Spotify (DA 93) — hoàn toàn an toàn.</p>
+        </div>
+      </div>
+      <div class="benefit reveal">
+        <div class="benefit-icon">🔄</div>
+        <div>
+          <h3>Tự động 24/7 — không cần làm thủ công</h3>
+          <p>Cài đặt một lần, bật lịch tự động. Bài viết phù hợp được đưa vào queue, RSS feed cập nhật và platform đã đăng ký tự đồng bộ mỗi tập mới.</p>
+        </div>
+      </div>
+      <div class="benefit reveal">
+        <div class="benefit-icon">🌐</div>
+        <div>
+          <h3>Tăng diện phủ thương hiệu đa kênh</h3>
+          <p>Podcast giúp mỗi bài viết có thêm audio, feed, show notes và điểm hiện diện ngoài website chính — tốt cho SEO entity, brand mention và content authority.</p>
+        </div>
+      </div>
+    </div>
+    <div class="benefits-cta">
+      <a href="#how-it-works" class="btn btn-green">Xem Cách Hoạt Động →</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============================================================
+     HOW IT WORKS
+     ============================================================ -->
+<section class="how" id="how-it-works">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="label-pill">🔧 Cách hoạt động</span>
+      <h2>4 bước đơn giản — ai cũng làm được</h2>
+      <p class="section-desc">Không cần kỹ thuật, không cần micro, không cần biết edit audio. Plugin hướng dẫn từng bước rõ ràng.</p>
+    </div>
+    <div class="steps-wrap stagger">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-tag">Bước 1</div>
+          <h3>Cài Đặt &amp; Cấu Hình</h3>
+          <p>Cài plugin lên WordPress, kích hoạt license, nhập API key AI &amp; TTS, chọn model/voice và cấu hình URL backlink mặc định. Giao diện trực quan, có hướng dẫn từng bước.</p>
+          <span class="step-time">⏱️ Khoảng 5-10 phút</span>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-tag">Bước 2</div>
+          <h3>Tạo Podcast — Chỉ 1 Click</h3>
+          <p>Mở bài viết bất kỳ → nhấn <strong>Generate Podcast</strong>. AI tạo script hội thoại, TTS tạo file audio MP3, show notes tự chèn backlink theo cấu hình. Thường mất 30-120 giây.</p>
+          <span class="step-time">⏱️ 30-120 giây / bài</span>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-tag">Bước 3</div>
+          <h3>Đăng Ký Nền Tảng — 1 Lần Duy Nhất</h3>
+          <p>Copy link RSS feed từ plugin → submit lên các directory. Plugin có sẵn checklist 11 nền tảng kèm link đăng ký và hướng dẫn ngắn để giảm thời gian thử sai.</p>
+          <span class="step-time">⏱️ 5-15 phút / nền tảng</span>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <div class="step-tag">Bước 4</div>
+          <h3>Tự Động Nhận Backlink — Mãi Mãi</h3>
+          <p>Bật Auto Queue — bài viết mới tự đưa vào hàng chờ, RSS feed tự cập nhật, các nền tảng đã đăng ký tự đồng bộ tập mới. Backlink show notes chạy đều đặn theo cấu hình.</p>
+          <span class="step-time">⚡ Hoàn toàn tự động</span>
+        </div>
+      </div>
+    </div>
+    <div class="how-cta reveal">
+      <a href="#pricing" class="btn btn-primary btn-lg" id="how-cta">🔥 Chọn Gói Phù Hợp</a>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============================================================
+     PRICING
+     ============================================================ -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="label-pill">💎 Bảng giá</span>
+      <h2>Chọn gói phù hợp với bạn</h2>
+      <p class="section-desc">Sau khi thanh toán, bạn sẽ nhận license để kích hoạt plugin và bắt đầu tạo podcast backlink ngay trong WordPress.</p>
+    </div>
+
+    <div class="pricing-grid stagger">
+
+      <!-- Plan 1 -->
+      <div class="plan reveal">
+        <span class="plan-tag basic">Gói khởi đầu</span>
+        <h3>Vĩnh viễn / 5 Domain</h3>
+        <p class="plan-desc">Phù hợp nếu bạn chỉ cần triển khai cho vài website và đã quen tự đăng ký podcast directory.</p>
+        <div class="plan-price">
+          <strong>1.090.000đ</strong>
+          <span>/ dùng lâu dài</span>
+        </div>
+        <div class="plan-highlight">
+          Gói này có đầy đủ tính năng plugin, nhưng chưa bao gồm tài liệu hướng dẫn đăng ký directory chi tiết.
+        </div>
+        <ul class="plan-feats">
+          <li><span class="check-circle">✓</span> Dùng plugin đầy đủ, active tối đa 5 domain</li>
+          <li><span class="check-circle">✓</span> AI script: Gemini, OpenAI, OpenRouter</li>
+          <li><span class="check-circle">✓</span> TTS: 7 provider + upload thủ công</li>
+          <li><span class="check-circle">✓</span> RSS Feed chuẩn iTunes + Show Notes backlink</li>
+          <li><span class="check-circle">✓</span> Directory Tracker 11 nền tảng</li>
+          <li><span class="check-circle">✓</span> Auto-Queue WP Cron</li>
+        </ul>
+        <div class="plan-btn">
+          <a href="#" class="btn btn-green btn-lg" style="width:100%;" id="buy-plan-1">Mua Gói 5 Domain</a>
+        </div>
+        <p class="plan-sub">Nhận license qua email sau khi thanh toán</p>
+      </div>
+
+      <!-- Plan 2: Featured -->
+      <div class="plan featured reveal">
+        <span class="plan-tag hot">🔥 Khuyến nghị</span>
+        <h3>Vĩnh viễn / 10 Domain + Tài liệu</h3>
+        <p class="plan-desc">Lựa chọn tối ưu — triển khai nhiều site ngay từ đầu kèm tài liệu hướng dẫn đăng ký directory chi tiết bằng hình ảnh.</p>
+        <div class="plan-price">
+          <strong>1.500.000đ</strong>
+          <span>/ dùng lâu dài</span>
+        </div>
+        <div class="plan-highlight">
+          Chỉ thêm <strong style="color:#f97316">410.000đ</strong> so với gói 5 domain, bạn có thêm 5 domain &amp; tài liệu hướng dẫn trị giá <strong style="color:#f97316">2.000.000đ</strong>.
+        </div>
+        <ul class="plan-feats">
+          <li><span class="check-circle">✓</span> Dùng plugin đầy đủ, active tối đa 10 domain</li>
+          <li><span class="check-circle">✓</span> Tặng kèm tài liệu hướng dẫn đăng ký directory chi tiết bằng hình ảnh — trị giá 2.000.000đ</li>
+          <li><span class="check-circle">✓</span> Giảm thời gian thử sai khi submit podcast</li>
+          <li><span class="check-circle">✓</span> Mọi tính năng của gói 5 domain</li>
+          <li><span class="check-circle">✓</span> Ưu tiên hỗ trợ qua email</li>
+          <li><span class="check-circle">✓</span> Cập nhật plugin 12 tháng</li>
+        </ul>
+        <div class="plan-btn">
+          <a href="#" class="btn btn-primary btn-lg" style="width:100%;" id="buy-plan-2">Mua Gói 10 Domain + Tài Liệu</a>
+        </div>
+        <p class="plan-sub">License + tài liệu giao ngay qua email</p>
+      </div>
+
+    </div>
+
+    <div class="pricing-note reveal">
+      🔐 Sau khi thanh toán, bạn sẽ nhận license key để kích hoạt plugin theo đúng số domain của gói đã chọn. Hỗ trợ qua email trong giờ hành chính.
+    </div>
+
+    <div class="compat-row reveal">
+      <span class="compat-chip">🔌 WordPress 6.0+</span>
+      <span class="compat-chip">🐘 PHP 7.4+</span>
+      <span class="compat-chip">📊 RankMath PRO</span>
+      <span class="compat-chip">🔍 Yoast SEO</span>
+      <span class="compat-chip">🌐 Mọi hosting</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ============================================================
+     FAQ
+     ============================================================ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="text-center reveal">
+      <span class="label-pill">❓ FAQ</span>
+      <h2>Câu hỏi thường gặp</h2>
+    </div>
+    <div class="faq-wrap">
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-1">
+          <span>Plugin có tự động đăng ký lên Apple Podcasts, Spotify không?</span>
+          <span class="faq-ico" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-1" role="region">
+          <div class="faq-a-inner">
+            <strong>Không.</strong> Plugin tạo nguyên liệu podcast hoàn chỉnh (audio, show notes, backlink) và sinh RSS feed chuẩn iTunes. Bạn chỉ cần copy link RSS feed và submit lên các nền tảng <strong>1 lần duy nhất</strong>. Plugin cung cấp sẵn danh sách 11 nền tảng kèm link đăng ký và theo dõi tiến độ. Sau khi đăng ký, mỗi tập mới tự động xuất hiện trên tất cả platform.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-2">
+          <span>Tôi không biết gì về podcast, có dùng được không?</span>
+          <span class="faq-ico" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-2" role="region">
+          <div class="faq-a-inner">
+            Hoàn toàn được. Bạn không cần micro, không cần studio, không cần biết edit audio. Plugin xử lý 100% quy trình từ viết kịch bản đến tạo file audio chuyên nghiệp. Bạn chỉ cần cấu hình license và API key, sau đó nhấn <strong>Generate Podcast</strong> trong bài viết bất kỳ.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-3">
+          <span>Backlink từ podcast có thật sự giúp SEO không?</span>
+          <span class="faq-ico" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-3" role="region">
+          <div class="faq-a-inner">
+            Có. Apple Podcasts (DA 100), Spotify (DA 93), Google Podcasts (DA 94), TuneIn (DA 91) — đây là những nền tảng có authority rất cao. Khi podcast được index, show notes chứa backlink về site bạn là backlink white-hat, hoàn toàn tự nhiên. Ngoài ra, nhiều nguồn crawl RSS giúp Google phát hiện và index nội dung mới nhanh hơn.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-4">
+          <span>Chi phí API AI và TTS như thế nào?</span>
+          <span class="faq-ico" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-4" role="region">
+          <div class="faq-a-inner">
+            Plugin hỗ trợ nhiều provider với mức chi phí khác nhau. Tham khảo: <strong>Gemini 1.5 Flash</strong> ~$0.075/1M token (rất rẻ), <strong>OpenAI TTS-1</strong> ~$0.015/1K ký tự, <strong>FPT.AI</strong> có gói miễn phí 500K ký tự/tháng. Trung bình một bài viết 1000 từ tốn khoảng 3.000-10.000đ API cost. Chi phí API do nhà cung cấp tính riêng, không nằm trong giá plugin.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-5">
+          <span>Plugin hoạt động với hosting giá rẻ (shared hosting) không?</span>
+          <span class="faq-ico" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-5" role="region">
+          <div class="faq-a-inner">
+            Có. Yêu cầu tối thiểu: PHP 7.4+, WordPress 6.0+. Với shared hosting, bạn nên đảm bảo: WP-Cron chạy ổn định (hoặc dùng cron thật qua cPanel), PHP execution time ≥ 120 giây (cho TTS), dung lượng đủ lưu file audio. Nên dùng OpenAI TTS hoặc Google TTS thay vì FPT.AI (async) trên shared hosting có exec time thấp.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-6">
+          <span>Plugin có tương thích với RankMath và Yoast không?</span>
+          <span class="faq-ico" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-6" role="region">
+          <div class="faq-a-inner">
+            Có. Plugin hoạt động <strong>standalone</strong> hoàn toàn — tự sinh RSS feed và Schema. Nếu bạn có <strong>RankMath PRO</strong> với Podcast module bật, plugin tự động phát hiện và sync dữ liệu trực tiếp vào RankMath, tránh trùng lặp schema. Với Yoast SEO hoặc plugin SEO khác, plugin vẫn chạy bình thường.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q" aria-expanded="false" aria-controls="faq-7">
+          <span>Sau khi mua, tôi nhận được gì và cập nhật thế nào?</span>
+          <span class="faq-ico" aria-hidden="true">+</span>
+        </button>
+        <div class="faq-a" id="faq-7" role="region">
+          <div class="faq-a-inner">
+            Sau thanh toán, bạn nhận license key qua email để kích hoạt plugin và triển khai theo số domain của gói. Gói 10 domain còn được tặng kèm tài liệu hướng dẫn đăng ký directory chi tiết. Cập nhật plugin trong 12 tháng được bao gồm. Sau đó, plugin vẫn hoạt động bình thường nhưng sẽ không nhận bản cập nhật mới (provider mới, tính năng mới, sửa lỗi tương thích).
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FINAL CTA
+     ============================================================ -->
+<section class="final-cta">
+  <div class="container">
+    <h2 class="reveal">Muốn biến blog post thành<br>podcast feed và backlink?</h2>
+    <p class="reveal">Chọn gói phù hợp, thanh toán và nhận license để bắt đầu tạo podcast backlink ngay trong WordPress. Nếu muốn triển khai nhiều site và có hướng dẫn chi tiết, gói 10 domain là lựa chọn tối ưu hơn.</p>
+    <a href="#pricing" class="btn btn-primary btn-xl reveal" id="final-cta-btn">🔥 Chọn Gói Mở Bán</a>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer>
+  <div class="container">
+    <p>© 2026 Podcast Builder Pro · Liên hệ: <a href="mailto:support@example.com">support@example.com</a> · <a href="#">Chính sách bảo mật</a></p>
+  </div>
+</footer>
+
+<!-- ============================================================
+     STICKY CTA (Mobile)
+     ============================================================ -->
+<div class="sticky-bar" id="sticky-bar" aria-hidden="true">
+  <a href="#pricing" class="btn btn-primary" id="sticky-btn">🔥 Xem Gói Mua</a>
+</div>
+
+
+<!-- ============================================================
+     SCRIPTS
+     ============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  // NAV scroll effect
+  var nav = document.getElementById('nav');
+  function onScroll() {
+    nav.classList.toggle('scrolled', window.pageYOffset > 20);
+    updateSticky();
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // STICKY BAR (mobile)
+  var stickyBar = document.getElementById('sticky-bar');
+  var pricingEl = document.getElementById('pricing');
+  function updateSticky() {
+    if (window.innerWidth >= 768) return;
+    var scrollY = window.pageYOffset;
+    var pricingTop = pricingEl.getBoundingClientRect().top + scrollY;
+    var show = scrollY > 400 && scrollY < pricingTop - 200;
+    stickyBar.classList.toggle('show', show);
+    stickyBar.setAttribute('aria-hidden', !show);
+  }
+  window.addEventListener('resize', updateSticky, { passive: true });
+
+  // FAQ ACCORDION
+  document.querySelectorAll('.faq-item').forEach(function (item) {
+    var btn = item.querySelector('.faq-q');
+    btn.addEventListener('click', function () {
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function (other) {
+        other.classList.remove('open');
+        other.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+      }
+    });
+  });
+
+  // SMOOTH SCROLL
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        var top = target.getBoundingClientRect().top + window.pageYOffset - 76;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      }
+    });
+  });
+
+  // REVEAL ON SCROLL
+  var reveals = document.querySelectorAll('.reveal');
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+  reveals.forEach(function (el) { observer.observe(el); });
+
+  // FLOATING PARTICLES (hero only)
+  var heroBg = document.getElementById('hero-bg');
+  if (heroBg && window.innerWidth > 768) {
+    for (var i = 0; i < 20; i++) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      var size = Math.random() * 3 + 1;
+      var colors = [
+        'rgba(16,185,129,' + (Math.random() * 0.45 + 0.1) + ')',
+        'rgba(6,182,212,'  + (Math.random() * 0.2  + 0.05) + ')',
+        'rgba(234,88,12,'  + (Math.random() * 0.18 + 0.05) + ')'
+      ];
+      var c = colors[Math.floor(Math.random() * colors.length)];
+      p.style.cssText =
+        'width:'  + size + 'px;height:' + size + 'px;' +
+        'left:'   + (Math.random() * 100) + '%;bottom:-10px;' +
+        'background:' + c + ';' +
+        'box-shadow:0 0 ' + (size * 3) + 'px ' + c + ';' +
+        'animation-duration:' + (Math.random() * 10 + 7) + 's;' +
+        'animation-delay:'   + (Math.random() * 8)  + 's;';
+      heroBg.appendChild(p);
+    }
+  }
+
+  // SUBTLE PARALLAX on hero (desktop)
+  if (window.innerWidth > 1024) {
+    var heroContent = document.querySelector('.hero-content');
+    window.addEventListener('scroll', function () {
+      var y = window.pageYOffset;
+      if (y < 700 && heroContent) {
+        heroContent.style.transform = 'translateY(' + (y * 0.07) + 'px)';
+        heroContent.style.opacity = 1 - y * 0.0009;
+      }
+    }, { passive: true });
+  }
+
+  // HERO CARD 3D TILT on mouse
+  var heroCard = document.querySelector('.hero-card');
+  if (heroCard && window.innerWidth > 768) {
+    heroCard.parentElement.addEventListener('mousemove', function (e) {
+      var rect = heroCard.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top  + rect.height / 2;
+      var dx = (e.clientX - cx) / rect.width  * 12;
+      var dy = (e.clientY - cy) / rect.height * -8;
+      heroCard.style.transform = 'perspective(900px) rotateY(' + dx + 'deg) rotateX(' + dy + 'deg)';
+    });
+    heroCard.parentElement.addEventListener('mouseleave', function () {
+      heroCard.style.transform = 'perspective(900px) rotateY(-4deg) rotateX(2deg)';
+    });
+  }
+
+})();
+</script>
+
+</body>
+</html>
